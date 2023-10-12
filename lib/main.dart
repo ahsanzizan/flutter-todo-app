@@ -78,6 +78,12 @@ class _TodoListState extends State<TodoList> {
     );
   }
 
+  void _handleChange(Todo todo) {
+    setState(() {
+      todo.completed = !todo.completed;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,7 +93,10 @@ class _TodoListState extends State<TodoList> {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: _todos.map((Todo todo) {
-          return TodoItem(todo: todo);
+          return TodoItem(
+            todo: todo,
+            onChanged: _handleChange,
+          );
         }).toList(),
       ),
       floatingActionButton: FloatingActionButton(
@@ -106,8 +115,11 @@ class Todo {
 }
 
 class TodoItem extends StatelessWidget {
-  TodoItem({required this.todo}) : super(key: ObjectKey(todo));
+  TodoItem({required this.todo, required this.onChanged})
+      : super(key: ObjectKey(todo));
   final Todo todo;
+
+  final void Function(Todo todo) onChanged;
 
   TextStyle? _getTextStyle(bool checked) {
     // return nothing if not checked
@@ -120,12 +132,16 @@ class TodoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () {},
+      onTap: () {
+        onChanged(todo);
+      },
       leading: Checkbox(
         checkColor: Colors.green.shade400,
         activeColor: Colors.red.shade500,
         value: todo.completed,
-        onChanged: (value) {},
+        onChanged: (value) {
+          onChanged(todo);
+        },
       ),
       title: Row(children: <Widget>[
         Expanded(
